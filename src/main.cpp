@@ -4,6 +4,7 @@
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
 #include <Wire.h>
+#include <SPI.h>
 
 #include <NTPClient.h>
 #include "WiFiUdp.h"
@@ -17,9 +18,11 @@ const char* password = "7405145473";
 
 
 
-/*const long utcOffsetInSeconds = 19800;
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};*/
-// Define NTP Client to get time
+const char* PARAM_STRING = "inputString";
+const char* PARAM_INT = "inputInt";
+const char* PARAM_FLOAT = "inputFloat";
+
+
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
 
@@ -39,6 +42,42 @@ String getTime() {
   return String(time);
 }
 
+////TEST/////
+String readFile(fs::FS &fs, const char * path){
+  Serial.printf("Reading file: %s\r\n", path);
+  File file = fs.open(path, "r");
+  if(!file || file.isDirectory()){
+    Serial.println("- empty file or failed to open file");
+    return String();
+  }
+  Serial.println("- read from file:");
+  String fileContent;
+  while(file.available()){
+    fileContent+=String((char)file.read());
+  }
+  Serial.println(fileContent);
+  return fileContent;
+}
+////TEST/////
+
+
+////TEST/////
+  void writeFile(fs::FS &fs, const char * path, const char * message){
+  Serial.printf("Writing file: %s\r\n", path);
+  File file = fs.open(path, "w");
+  if(!file){
+    Serial.println("- failed to open file for writing");
+    return;
+  }
+  if(file.print(message)){
+    Serial.println("- file written");
+  } else {
+    Serial.println("- write failed");
+  }
+}
+////TEST/////
+
+
 // Replaces placeholder with LED state value
 String processor(const String& var){
   Serial.println(var);
@@ -54,7 +93,16 @@ String processor(const String& var){
   }
   else if (var == "TIME"){
     return getTime();
-  } 
+  }
+  else if(var == "inputString"){
+    return readFile(SPIFFS, "/inputString.txt");
+  }
+  else if(var == "inputInt"){
+    return readFile(SPIFFS, "/inputInt.txt");
+  }
+  else if(var == "inputFloat"){
+    return readFile(SPIFFS, "/inputFloat.txt");
+  }
 }
  
 void setup(){
@@ -109,6 +157,33 @@ void setup(){
     request->send_P(200, "text/plain", getTime().c_str());
   });
 
+////TEST/////
+   // Send a GET request to <ESP_IP>/get?inputString=<inputMessage>
+  server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    String inputMessage;
+    // GET inputString value on <ESP_IP>/get?inputString=<inputMessage>
+    if (request->hasParam(PARAM_STRING)) {
+      inputMessage = request->getParam(PARAM_STRING)->value();
+      writeFile(SPIFFS, "/inputString.txt", inputMessage.c_str());
+    }
+    // GET inputInt value on <ESP_IP>/get?inputInt=<inputMessage>
+    else if (request->hasParam(PARAM_INT)) {
+      inputMessage = request->getParam(PARAM_INT)->value();
+      writeFile(SPIFFS, "/inputInt.txt", inputMessage.c_str());
+    }
+    // GET inputFloat value on <ESP_IP>/get?inputFloat=<inputMessage>
+    else if (request->hasParam(PARAM_FLOAT)) {
+      inputMessage = request->getParam(PARAM_FLOAT)->value();
+      writeFile(SPIFFS, "/inputFloat.txt", inputMessage.c_str());
+    }
+    else {
+      inputMessage = "No message sent";
+    }
+    Serial.println(inputMessage);
+    request->send(200, "text/text", inputMessage);
+  });
+////TEST/////
+
   // Start server
   server.begin();
 
@@ -117,15 +192,16 @@ void setup(){
 void loop(){
   timeClient.update();
 
-  //Serial.print(daysOfTheWeek[timeClient.getDay()]);
-  //Serial.print(", ");
-  String formattedTime = timeClient.getFormattedTime();
-  String formattedDate = timeClient.getFormattedDate();
-  int hour = timeClient.getHours();
-  int minute = timeClient.getMinutes();
-  //String formattedDate = timeClient.getFormattedDate();
-  Serial.print("Cas: ");
-  Serial.println(formattedTime);
-  Serial.println(formattedDate);
+  String yourInputString = readFile(SPIFFS, "/inputString.txt");
+  Serial.print("*** Your inputString: ");
+  Serial.println(yourInputString);
+  
+  int yourInputInt = readFile(SPIFFS, "/inputInt.txt").toInt();
+  Serial.print("*** Your inputInt: ");
+  Serial.println(yourInputInt);
+  
+  float yourInputFloat = readFile(SPIFFS, "/inputFloat.txt").toFloat();
+  Serial.print("*** Your inputFloat: ");
+  Serial.println(yourInputFloat);
   delay(1000);
 }

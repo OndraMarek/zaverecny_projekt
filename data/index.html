@@ -7,17 +7,30 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <h1>ESP8266 Web Server HAHAHAH</h1>
+  <h1>ESP8266 Web Server TEST</h1>
   <p>GPIO state<strong> %STATE%</strong></p>
   <p>
     <a href="/on"><button class="button">ON</button></a>
     <a href="/off"><button class="button button2">OFF</button></a>
   </p>
   <p>
-    <span class="time">Čas</span>
+    <span class="time">Čas:</span>
     <span id="time">%TIME%</span>
   </p>
-  
+
+  <form action="/get" target="hidden-form">
+    inputString (current value %inputString%): <input type="text" name="inputString">
+    <input type="submit" value="Submit" onclick="submitMessage()">
+  </form><br>
+  <form action="/get" target="hidden-form">
+    inputInt (current value %inputInt%): <input type="number " name="inputInt">
+    <input type="submit" value="Submit" onclick="submitMessage()">
+  </form><br>
+  <form action="/get" target="hidden-form">
+    inputFloat (current value %inputFloat%): <input type="number " name="inputFloat">
+    <input type="submit" value="Submit" onclick="submitMessage()">
+  </form>
+
 </body>
 <script>
   setInterval(function ( ) {
@@ -30,5 +43,10 @@
     xhttp.open("GET", "/time", true);
     xhttp.send();
   }, 10000 ) ;
+
+  function submitMessage() {
+      alert("Saved value to ESP SPIFFS");
+      setTimeout(function(){ document.location.reload(false); }, 500);   
+    }
 </script>
 </html>
