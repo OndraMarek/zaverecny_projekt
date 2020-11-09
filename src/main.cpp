@@ -18,9 +18,9 @@ const char* password = "7405145473";
 
 
 
-const char* PARAM_STRING = "inputString";
-const char* PARAM_INT = "inputInt";
-const char* PARAM_FLOAT = "inputFloat";
+
+byte inputHodiny=12;
+byte inputMinuty=0;
 
 
 WiFiUDP ntpUDP;
@@ -42,40 +42,7 @@ String getTime() {
   return String(time);
 }
 
-////TEST/////
-String readFile(fs::FS &fs, const char * path){
-  Serial.printf("Reading file: %s\r\n", path);
-  File file = fs.open(path, "r");
-  if(!file || file.isDirectory()){
-    Serial.println("- empty file or failed to open file");
-    return String();
-  }
-  Serial.println("- read from file:");
-  String fileContent;
-  while(file.available()){
-    fileContent+=String((char)file.read());
-  }
-  Serial.println(fileContent);
-  return fileContent;
-}
-////TEST/////
 
-
-////TEST/////
-  void writeFile(fs::FS &fs, const char * path, const char * message){
-  Serial.printf("Writing file: %s\r\n", path);
-  File file = fs.open(path, "w");
-  if(!file){
-    Serial.println("- failed to open file for writing");
-    return;
-  }
-  if(file.print(message)){
-    Serial.println("- file written");
-  } else {
-    Serial.println("- write failed");
-  }
-}
-////TEST/////
 
 
 // Replaces placeholder with LED state value
@@ -93,15 +60,6 @@ String processor(const String& var){
   }
   else if (var == "TIME"){
     return getTime();
-  }
-  else if(var == "inputString"){
-    return readFile(SPIFFS, "/inputString.txt");
-  }
-  else if(var == "inputInt"){
-    return readFile(SPIFFS, "/inputInt.txt");
-  }
-  else if(var == "inputFloat"){
-    return readFile(SPIFFS, "/inputFloat.txt");
   }
 }
  
@@ -158,30 +116,15 @@ void setup(){
   });
 
 ////TEST/////
-   // Send a GET request to <ESP_IP>/get?inputString=<inputMessage>
-  server.on("/get", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    String inputMessage;
-    // GET inputString value on <ESP_IP>/get?inputString=<inputMessage>
-    if (request->hasParam(PARAM_STRING)) {
-      inputMessage = request->getParam(PARAM_STRING)->value();
-      writeFile(SPIFFS, "/inputString.txt", inputMessage.c_str());
-    }
-    // GET inputInt value on <ESP_IP>/get?inputInt=<inputMessage>
-    else if (request->hasParam(PARAM_INT)) {
-      inputMessage = request->getParam(PARAM_INT)->value();
-      writeFile(SPIFFS, "/inputInt.txt", inputMessage.c_str());
-    }
-    // GET inputFloat value on <ESP_IP>/get?inputFloat=<inputMessage>
-    else if (request->hasParam(PARAM_FLOAT)) {
-      inputMessage = request->getParam(PARAM_FLOAT)->value();
-      writeFile(SPIFFS, "/inputFloat.txt", inputMessage.c_str());
-    }
-    else {
-      inputMessage = "No message sent";
-    }
-    Serial.println(inputMessage);
-    request->send(200, "text/text", inputMessage);
-  });
+  server.on("/hodiny", HTTP_POST, [](AsyncWebServerRequest *request) {
+      inputHodiny = request->arg("hodiny").toInt();
+      request->send_P(200, "text/json", "{\"result\":\"ok\"}");
+    });
+
+  server.on("/minuty", HTTP_POST, [](AsyncWebServerRequest *request) {
+      inputMinuty = request->arg("minuty").toInt();
+      request->send_P(200, "text/json", "{\"result\":\"ok\"}");
+    });
 ////TEST/////
 
   // Start server
@@ -191,17 +134,8 @@ void setup(){
  
 void loop(){
   timeClient.update();
-
-  String yourInputString = readFile(SPIFFS, "/inputString.txt");
-  Serial.print("*** Your inputString: ");
-  Serial.println(yourInputString);
-  
-  int yourInputInt = readFile(SPIFFS, "/inputInt.txt").toInt();
-  Serial.print("*** Your inputInt: ");
-  Serial.println(yourInputInt);
-  
-  float yourInputFloat = readFile(SPIFFS, "/inputFloat.txt").toFloat();
-  Serial.print("*** Your inputFloat: ");
-  Serial.println(yourInputFloat);
+  Serial.println(inputHodiny);
+  Serial.println(inputMinuty);
+ 
   delay(1000);
 }

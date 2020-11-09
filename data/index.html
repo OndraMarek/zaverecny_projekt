@@ -14,24 +14,24 @@
     <a href="/off"><button class="button button2">OFF</button></a>
   </p>
   <p>
-    <span class="time">Čas:</span>
+    <span class="time">Cas:</span>
     <span id="time">%TIME%</span>
   </p>
 
-  <form action="/get" target="hidden-form">
-    inputString (current value %inputString%): <input type="text" name="inputString">
-    <input type="submit" value="Submit" onclick="submitMessage()">
+  <form target="hidden-form">
+    Hodiny (current value %inputHodiny%): <input action="/get" type="number" name="inputHodiny" id="hodinyTest">
+    <button type="button" value="Submit" class="btn btn-primary" onclick="setHodiny()">Button</button>
   </form><br>
-  <form action="/get" target="hidden-form">
-    inputInt (current value %inputInt%): <input type="number " name="inputInt">
-    <input type="submit" value="Submit" onclick="submitMessage()">
+  <form target="hidden-form">
+    Minuty (current value %inputMinuty%): <input action="/get" type="number " name="inputMinuty" id="minutyTest">
+    <button type="button" value="Submit" class="btn btn-primary" onclick="setMinuty()">Button</button>
   </form><br>
-  <form action="/get" target="hidden-form">
-    inputFloat (current value %inputFloat%): <input type="number " name="inputFloat">
-    <input type="submit" value="Submit" onclick="submitMessage()">
-  </form>
 
 </body>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
   setInterval(function ( ) {
     var xhttp = new XMLHttpRequest();
@@ -44,9 +44,15 @@
     xhttp.send();
   }, 10000 ) ;
 
-  function submitMessage() {
-      alert("Saved value to ESP SPIFFS");
-      setTimeout(function(){ document.location.reload(false); }, 500);   
-    }
+  function setHodiny() {
+    var hh = $('#hodinyTest').val();
+      $.post("/hodiny", { hodiny: hh });
+  }
+
+  function setMinuty() {
+    var mm = $('#minutyTest').val();
+      $.post("/minuty", { minuty: mm });
+  }
+
 </script>
 </html>
