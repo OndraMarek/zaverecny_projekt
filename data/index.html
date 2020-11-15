@@ -19,13 +19,16 @@
   </p>
 
   <form target="hidden-form">
-    Hodiny (current value %inputHodiny%): <input action="/get" type="number" name="inputHodiny" id="hodinyTest">
-    <button type="button" value="Submit" class="btn btn-primary" onclick="setHodiny()">Button</button>
+    Cas: <input action="/get" type="number" name="inputHodiny" id="hodinyTest">
+    : <input action="/get" type="number " name="inputMinuty" id="minutyTest">
+    <button type="button" value="Submit" class="btn btn-primary" onclick="setMinuty(),setHodiny()">Button</button>
   </form><br>
-  <form target="hidden-form">
-    Minuty (current value %inputMinuty%): <input action="/get" type="number " name="inputMinuty" id="minutyTest">
-    <button type="button" value="Submit" class="btn btn-primary" onclick="setMinuty()">Button</button>
-  </form><br>
+
+<div class="container jumbotron text-center">
+    <h1 class="display-4">ESP8266 Servo Control</h1><br>
+    <input type="range" name="angle" id="range" min="0" max="180" value="0" class="custom-range"></br><br>
+    <p id="currentAngle" class="display-4">Current Value : 0 °</p>
+</div>
 
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -54,5 +57,13 @@
       $.post("/minuty", { minuty: mm });
   }
 
+  $(document).ready(() => {
+    $("#range").on("input", () => {
+      $("#currentAngle").text("Current Value : " + $("#range").val() + "°");
+      $.post("/angle", {
+          angle: $("#range").val(),
+      });
+    });
+  });
 </script>
 </html>

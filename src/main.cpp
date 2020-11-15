@@ -8,7 +8,7 @@
 
 #include <NTPClient.h>
 #include "WiFiUdp.h"
-
+#include <Servo.h>
 
 
 
@@ -27,6 +27,11 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
 
 
+//TEST
+const uint8_t servoPin = D4;                         // replace with servo pin
+/* Create Servo Object */
+Servo servo;
+//TEST
 
 // Set LED GPIO
 const int ledPin = 2;
@@ -99,6 +104,15 @@ void setup(){
     request->send(SPIFFS, "/style.css", "text/css");
   });
 
+//TEST////////////
+  server.on("/angle", HTTP_POST, [](AsyncWebServerRequest *request) {
+    String angle = request->arg("angle");
+    Serial.println("Current Position: " + angle + "°");
+    servo.write(angle.toInt());
+    request->send(200);
+  });
+//TEST/////////////
+
   // Route to set GPIO to HIGH
   server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
     digitalWrite(ledPin, HIGH);    
@@ -115,7 +129,6 @@ void setup(){
     request->send_P(200, "text/plain", getTime().c_str());
   });
 
-////TEST/////
   server.on("/hodiny", HTTP_POST, [](AsyncWebServerRequest *request) {
       inputHodiny = request->arg("hodiny").toInt();
       request->send_P(200, "text/json", "{\"result\":\"ok\"}");
@@ -125,7 +138,7 @@ void setup(){
       inputMinuty = request->arg("minuty").toInt();
       request->send_P(200, "text/json", "{\"result\":\"ok\"}");
     });
-////TEST/////
+
 
   // Start server
   server.begin();
