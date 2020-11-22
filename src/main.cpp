@@ -28,7 +28,7 @@ NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
 
 
 //TEST
-const uint8_t servoPin = D4;                         // replace with servo pin
+const uint8_t servoPin = D2;
 /* Create Servo Object */
 Servo servo;
 //TEST
@@ -43,8 +43,17 @@ AsyncWebServer server(80);
 
 String getTime() {
   String time = timeClient.getFormattedTime();
+  //int hh = timeClient.getHours();
+  //int mm = timeClient.getMinutes();
+  //String time = hh + ":" + mm;
   Serial.println(time);
   return String(time);
+}
+
+void feed(){
+  if(inputHodiny== timeClient.getHours() && inputMinuty== timeClient.getMinutes()){
+    Serial.println("Feeding");
+  }
 }
 
 
@@ -67,39 +76,29 @@ String processor(const String& var){
     return getTime();
   }
 }
- 
-void setup(){
 
-  // Serial port for debugging purposes
-  Serial.begin(115200);
-  pinMode(ledPin, OUTPUT);
-
-
+void initSpiffs(){
   // Initialize SPIFFS
   if(!SPIFFS.begin()){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
+}
 
+void wificonnect(){
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
+}
 
-  timeClient.begin();
-  timeClient.setTimeOffset(3600);
-
-  // Print ESP32 Local IP Address
-  Serial.println(WiFi.localIP());
-
-  // Route for root / web page
+void htmlRequests(){
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
   
-  // Route to load style.css file
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/style.css", "text/css");
   });
@@ -113,13 +112,11 @@ void setup(){
   });
 //TEST/////////////
 
-  // Route to set GPIO to HIGH
   server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
     digitalWrite(ledPin, HIGH);    
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
   
-  // Route to set GPIO to LOW
   server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request){
     digitalWrite(ledPin, LOW);    
     request->send(SPIFFS, "/index.html", String(), false, processor);
@@ -138,17 +135,36 @@ void setup(){
       inputMinuty = request->arg("minuty").toInt();
       request->send_P(200, "text/json", "{\"result\":\"ok\"}");
     });
+}
+ 
+void setup(){
+
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
+  servo.attach(servoPin);
+
+  initSpiffs();
+
+  wificonnect();
+
+  timeClient.begin();
+  timeClient.setTimeOffset(3600);
+
+  Serial.println(WiFi.localIP());
+
+  htmlRequests();
 
 
   // Start server
   server.begin();
-
 }
  
 void loop(){
   timeClient.update();
   Serial.println(inputHodiny);
   Serial.println(inputMinuty);
- 
-  delay(1000);
+  feed();
+
+  delay(60000);
 }
