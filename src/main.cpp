@@ -11,26 +11,21 @@
 #include <Servo.h>
 
 
-
-// Replace with your network credentials
 const char* ssid = "Tomas_WiFi";
 const char* password = "7405145473";
 
-
-
-
-byte inputHodiny=12;
+byte inputHodiny=0;
 byte inputMinuty=0;
-
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
 
-
 //TEST
 const uint8_t servoPin = D2;
-/* Create Servo Object */
 Servo servo;
+
+int otevrit=180;
+int zavrit=0;
 //TEST
 
 // Set LED GPIO
@@ -53,13 +48,12 @@ String getTime() {
 void feed(){
   if(inputHodiny== timeClient.getHours() && inputMinuty== timeClient.getMinutes()){
     Serial.println("Feeding");
+    servo.write(otevrit);
+    delay(1000);
+    servo.write(zavrit);
   }
 }
 
-
-
-
-// Replaces placeholder with LED state value
 String processor(const String& var){
   Serial.println(var);
   if(var == "STATE"){
@@ -78,7 +72,6 @@ String processor(const String& var){
 }
 
 void initSpiffs(){
-  // Initialize SPIFFS
   if(!SPIFFS.begin()){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
@@ -86,7 +79,6 @@ void initSpiffs(){
 }
 
 void wificonnect(){
-  // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -103,13 +95,13 @@ void htmlRequests(){
     request->send(SPIFFS, "/style.css", "text/css");
   });
 
-//TEST////////////
-  server.on("/angle", HTTP_POST, [](AsyncWebServerRequest *request) {
+//TEST//////////// 
+  /*server.on("/angle", HTTP_POST, [](AsyncWebServerRequest *request) {
     String angle = request->arg("angle");
     Serial.println("Current Position: " + angle + "°");
     servo.write(angle.toInt());
     request->send(200);
-  });
+  });*/
 //TEST/////////////
 
   server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -138,8 +130,6 @@ void htmlRequests(){
 }
  
 void setup(){
-
-  // Serial port for debugging purposes
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
   servo.attach(servoPin);
@@ -155,8 +145,6 @@ void setup(){
 
   htmlRequests();
 
-
-  // Start server
   server.begin();
 }
  
@@ -166,5 +154,5 @@ void loop(){
   Serial.println(inputMinuty);
   feed();
 
-  delay(60000);
+  delay(10000);
 }
