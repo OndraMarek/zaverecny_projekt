@@ -10,12 +10,13 @@
 #include "WiFiUdp.h"
 #include <Servo.h>
 
+#include <ESPAsyncWiFiManager.h>
 
-const char* ssid = "Tomas_WiFi";
-const char* password = "7405145473";
+/*const char* ssid = "SSPUOpava";
+const char* password = "";*/
 
-byte inputHodiny=0;
-byte inputMinuty=0;
+byte inputHodiny;
+byte inputMinuty;
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
@@ -35,6 +36,7 @@ String ledState;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
+DNSServer dns;
 
 String getTime() {
   String time = timeClient.getFormattedTime();
@@ -79,11 +81,10 @@ void initSpiffs(){
 }
 
 void wificonnect(){
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
+  AsyncWiFiManager wifiManager(&server,&dns);
+  wifiManager.autoConnect("AutoConnectAP");
+  Serial.println("connected...yeey :)");
+  Serial.println(WiFi.localIP());
 }
 
 void htmlRequests(){
@@ -93,6 +94,10 @@ void htmlRequests(){
   
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/style.css", "text/css");
+  });
+
+  server.on("/main.js", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/main.js", String());
   });
 
 //TEST//////////// 
@@ -138,10 +143,10 @@ void setup(){
 
   wificonnect();
 
+
   timeClient.begin();
   timeClient.setTimeOffset(3600);
 
-  Serial.println(WiFi.localIP());
 
   htmlRequests();
 
@@ -153,6 +158,7 @@ void loop(){
   Serial.println(inputHodiny);
   Serial.println(inputMinuty);
   feed();
+
 
   delay(10000);
 }
