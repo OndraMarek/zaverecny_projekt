@@ -1,10 +1,9 @@
-// Import required libraries
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <FS.h>
+/*#include <FS.h>
 #include <Wire.h>
-#include <SPI.h>
+#include <SPI.h>*/
 
 #include <NTPClient.h>
 #include "WiFiUdp.h"
@@ -160,5 +159,5 @@ void loop(){
   feed();
 
 
-  delay(10000);
+  delay(1000);
 }
