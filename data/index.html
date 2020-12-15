@@ -24,11 +24,6 @@
     <button type="button" value="Submit" class="btn btn-primary" onclick="setMinuty(),setHodiny()">Button</button>
   </form><br>
 
-<div class="container jumbotron text-center">
-    <br>
-    <input type="range" name="angle" id="range" min="0" max="180" value="0" class="custom-range"></br><br>
-    <p id="currentAngle" class="display-4">Current Value : 0 °</p>
-</div>
 
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -36,35 +31,4 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="main.js"></script>
-<!--<script>
-  setInterval(function ( ) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        document.getElementById("time").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "/time", true);
-    xhttp.send();
-  }, 10000 ) ;
-
-  function setHodiny() {
-    var hh = $('#hodinyTest').val();
-      $.post("/hodiny", { hodiny: hh });
-  }
-
-  function setMinuty() {
-    var mm = $('#minutyTest').val();
-      $.post("/minuty", { minuty: mm });
-  }
-
-  $(document).ready(() => {
-    $("#range").on("input", () => {
-      $("#currentAngle").text("Current Value : " + $("#range").val() + "°");
-      $.post("/angle", {
-          angle: $("#range").val(),
-      });
-    });
-  });
-</script>-->
 </html>
