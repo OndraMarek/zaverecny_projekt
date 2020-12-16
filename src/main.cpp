@@ -8,9 +8,10 @@
 
 #include <ESPAsyncWiFiManager.h>
 
-
 byte inputHodiny;
 byte inputMinuty;
+String inputCas;
+int pom = 0;
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
@@ -18,37 +19,40 @@ NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
 const uint8_t servoPin = D2;
 Servo servo;
 
-int otevrit=180;
-int zavrit=0;
+int otevrit = 180;
+int zavrit = 0;
 
 // Set LED GPIO
 const int ledPin = 2;
 // Stores LED state
 String ledState;
 
-// Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 DNSServer dns;
 
-String getTime() {
-  String time = timeClient.getFormattedTime();
+String getTime(){
+  String time = String(timeClient.getHours())+":"+String(timeClient.getMinutes());
   Serial.println(time);
   return String(time);
 }
 
 void feed(){
-  if(inputHodiny== timeClient.getHours() && inputMinuty== timeClient.getMinutes()){
+  if (getTime() == inputCas && pom == 0){
     Serial.println("Feeding");
     servo.write(otevrit);
     delay(1000);
     servo.write(zavrit);
+    pom = 1;
+  }
+  if (getTime() != inputCas){
+    pom = 0;
   }
 }
 
-String processor(const String& var){
+String processor(const String &var){
   Serial.println(var);
-  if(var == "STATE"){
-    if(digitalRead(ledPin)){
+  if (var == "STATE"){
+    if (digitalRead(ledPin)){
       ledState = "ON";
     }
     else{
@@ -63,57 +67,52 @@ String processor(const String& var){
 }
 
 void initSpiffs(){
-  if(!SPIFFS.begin()){
+  if (!SPIFFS.begin()){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
 }
 
 void wificonnect(){
-  AsyncWiFiManager wifiManager(&server,&dns);
+  AsyncWiFiManager wifiManager(&server, &dns);
   wifiManager.autoConnect("AutoConnectAP");
   Serial.println("connected...yeey :)");
   Serial.println(WiFi.localIP());
 }
 
 void htmlRequests(){
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
-  
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/style.css", "text/css");
   });
 
-  server.on("/main.js", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/main.js", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/main.js", String());
   });
 
-  server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
-    digitalWrite(ledPin, HIGH);    
-    request->send(SPIFFS, "/index.html", String(), false, processor);
-  });
-  
-  server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request){
-    digitalWrite(ledPin, LOW);    
+  server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request) {
+    digitalWrite(ledPin, HIGH);
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
-  server.on("/time", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request) {
+    digitalWrite(ledPin, LOW);
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+
+  server.on("/time", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/plain", getTime().c_str());
   });
 
-  server.on("/hodiny", HTTP_POST, [](AsyncWebServerRequest *request) {
-      inputHodiny = request->arg("hodiny").toInt();
-      request->send_P(200, "text/json", "{\"result\":\"ok\"}");
-    });
-
-  server.on("/minuty", HTTP_POST, [](AsyncWebServerRequest *request) {
-      inputMinuty = request->arg("minuty").toInt();
-      request->send_P(200, "text/json", "{\"result\":\"ok\"}");
-    });
+  server.on("/cas", HTTP_POST, [](AsyncWebServerRequest *request) {
+    inputCas = request->arg("cas");
+    request->send_P(200, "text/json", "{\"result\":\"ok\"}");
+  });
 }
- 
+
 void setup(){
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
@@ -123,22 +122,18 @@ void setup(){
 
   wificonnect();
 
-
   timeClient.begin();
   timeClient.setTimeOffset(3600);
-
 
   htmlRequests();
 
   server.begin();
 }
- 
+
 void loop(){
   timeClient.update();
-  Serial.println(inputHodiny);
-  Serial.println(inputMinuty);
+  Serial.println(inputCas);
   feed();
-
 
   delay(1000);
 }

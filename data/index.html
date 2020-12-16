@@ -1,34 +1,53 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>ESP8266 Web Server</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
+
 <body>
-  <h1>ESP8266 Web Server TEST</h1>
-  <p>GPIO state<strong> %STATE%</strong></p>
-  <p>
-    <a href="/on"><button class="button">ON</button></a>
-    <a href="/off"><button class="button button2">OFF</button></a>
-  </p>
-  <p>
-    <span class="time">Cas:</span>
-    <span id="time">%TIME%</span>
-  </p>
-
-  <form target="hidden-form">
-    Cas: <input action="/get" type="number" name="inputHodiny" min="0" max="24" id="hodinyTest">
-    : <input action="/get" type="number" name="inputMinuty" min="0" max="60" id="minutyTest">
-    <button type="button" value="Submit" class="btn btn-primary" onclick="setMinuty(),setHodiny()">Button</button>
-  </form><br>
-
-
+  <header class="jumbotron-fluid p-3 bg-info">
+    <h1 class="display-3 text-center">ESP8266 Web Server</h1>
+  </header>
+  <main class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <p>GPIO state<strong> %STATE%</strong></p>
+        <p>
+          <a href="/on"><button class="button">ON</button></a>
+          <a href="/off"><button class="button button2">OFF</button></a>
+        </p>
+        <p>
+          <span class="time">Čas:</span>
+          <span id="time">%TIME%</span>
+        </p>
+        <div class="form-group row p-1 offset-3">
+          <label class="col-3">Čas krmení:</label>
+          <div class="col-4">
+            <input action="/get" type="time" class="form-control" name="inputCas" id="casTest">
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="offset-5 col-sm-2">
+            <button type="button" class="btn btn-success" value="Submit" onclick="setCas()">Ulozit cas</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>>
 </body>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+  integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="main.js"></script>
+
 </html>

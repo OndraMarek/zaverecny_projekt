@@ -10,7 +10,7 @@ html {
     text-align: center;
   }
   h1 {
-    color: #0F3376;
+    color: #ffffff;
     padding: 2vh;
   }
   p {
@@ -39,4 +39,6 @@ html {
     vertical-align:middle;
     padding-bottom: 15px;
   }
-  
+  label{
+    font-size: 1.5rem
+  }
