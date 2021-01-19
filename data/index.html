@@ -12,34 +12,28 @@
 
 <body>
   <header class="jumbotron-fluid p-3 bg-info">
-    <h1 class="display-3 text-center">ESP8266 Web Server</h1>
+    <h1 class="display-3 text-center">Feed dispenser</h1>
   </header>
   <main class="container">
     <div class="row">
       <div class="col-12 text-center">
-        <p>GPIO state<strong> %STATE%</strong></p>
         <p>
-          <a href="/on"><button class="button">ON</button></a>
-          <a href="/off"><button class="button button2">OFF</button></a>
-        </p>
-        <p>
-          <span class="time">Čas:</span>
           <span id="time">%TIME%</span>
         </p>
-        <div class="form-group row p-1 offset-3">
-          <label class="col-3">Čas krmení:</label>
-          <div class="col-4">
+        <div class="form-group row p-1">
+          <label class="offset-md-3 col-md-3 col-xs-9">Feeding time:</label>
+          <div class="col-md-3 col-xs-3">
             <input action="/get" type="time" class="form-control" name="inputCas" id="casTest">
           </div>
         </div>
         <div class="form-group row">
-          <div class="offset-5 col-sm-2">
-            <button type="button" class="btn btn-success" value="Submit" onclick="setCas()">Ulozit cas</button>
+          <div class="offset-5 col-md-3 col-xs-4">
+            <button type="button" class="btn btn-success" value="Submit" onclick="setCas()">Save time</button>
           </div>
         </div>
       </div>
     </div>
-  </main>>
+  </main>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
   integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
